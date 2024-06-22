@@ -93,6 +93,7 @@ header .user {
     height: calc(100% - 40px);
     background:#e4d0cd;
     border-right:solid 1px #532;
+    overflow:auto;
 }
 .sidemenu p a {
     display:block;

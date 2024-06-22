@@ -42,6 +42,7 @@ class MinuetCloud {
         this.root = options.root;
         this.container = options.container;
         this.parentCloud = options.parentCloud;
+        this.url = options.url;
         this.containers = {};
         this.mse = new minuet_script_engine_1.Mse({
             buffering: false,
@@ -49,7 +50,7 @@ class MinuetCloud {
         });
         this.web = new minuet_server_web_1.MinuetWeb({
             buffering: false,
-            url: options.url,
+            url: this.url,
             rootDir: this.root + "/webroot",
         });
     }
@@ -59,7 +60,17 @@ class MinuetCloud {
             if (status)
                 return true;
             if (beforeRoute) {
-                req.url = beforeRoute.url;
+                if (beforeRoute.route) {
+                    if (beforeRoute.url == "/") {
+                        req.url = beforeRoute.route;
+                    }
+                    else {
+                        req.url = beforeRoute.route + beforeRoute.url;
+                    }
+                }
+                else {
+                    req.url = beforeRoute.url;
+                }
             }
             try {
                 let routes = require(this.root + "/routes").default;
@@ -123,6 +134,7 @@ class MinuetCloud {
                 if (controller.layout) {
                     const sandbox = new minuet_script_engine_1.SandBox();
                     sandbox.container = this.container;
+                    sandbox.containerUrl = this.url;
                     if (controller.viewData) {
                         const vd = Object.keys(controller.viewData);
                         for (let n = 0; n < vd.length; n++) {
@@ -211,6 +223,9 @@ class MinuetCloud {
                     }
                     else if (ra.indexOf("container") === 0) {
                         buffer.container = rb;
+                    }
+                    else if (ra.indexOf("route") === 0) {
+                        buffer.route = rb;
                     }
                 }
                 res[url] = buffer;

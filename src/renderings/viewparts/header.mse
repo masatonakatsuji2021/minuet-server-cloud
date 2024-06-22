@@ -2,6 +2,6 @@
     <h1>Minuet Cloud</h1>
     <h2>XXXXXXXXX</h2>
     <div class="user">
-        <p>User Name<a href="/adm/logout">Logout</a></p>
+        <p>User Name<a href="/admin/logout">Logout</a></p>
     </div>
 </header>
