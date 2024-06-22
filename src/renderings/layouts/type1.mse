@@ -1,0 +1,6 @@
+....
+<script mse>
+await this.parentViewPart("header");
+await this.view();
+await this.parentViewPart("footer");
+</script>
