@@ -1,8 +1,131 @@
 * {
     margin:0;
     padding:0;
+    box-sizing:border-box;
 }
 body {
-    background:#e0d0c2;
-    color:#321;
+    background:#f2e2e0;
+    color:#421;
+}
+.center {
+    text-align:center;
+}
+input {
+    font-size:14px;
+    line-height:25px;
+    border:solid 1px #532;
+    padding:5px 8px;
+    outline:none;
+    border-radius:4px;
+}
+.btn {
+    line-height:25px;
+    padding:5px 15px;
+    background:#522;
+    color:#fff;
+    cursor:pointer;
+    border:none;
+    border-radius:4px;
+}
+.btn:hover {
+    background:#741
+}
+input:focus {
+    border:solid 1px darkcyan;
+}
+.minuet-login {
+    position:fixed;
+    left:50%;
+    top:50%;
+    transform:translateX(-50%) translateY(-50%);
+    border:solid 1px #532;
+    padding:20px;
+    background:rgba(255,255,255,0.5);
+    max-width:250px;
+    width:100%;
+}
+.minuet-login p{
+    margin:15px 0 0 0;
+}
+.minuet-login input{
+    width:100%;
+}
+header {
+    background:#e4d0cd;
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height:40px;
+    border-bottom:solid 1px #532;
+    overflow:hidden;
+    zoom:1;
+}
+header .user {
+    float:right;
+    padding:0 20px;
+    font-size:15px;
+    font-weight:bold;
+}
+header .user a {
+    font-size:13px;
+    margin-left:10px;
+}
+header:after {
+    display:block;
+    content:"";
+    clear:both;
+}
+header > * {
+    float:left;
+    font-size:20px;
+    line-height:40px;
+    padding-left:15px;
+}
+header .user {
+
+}
+.sidemenu {
+    position:fixed;
+    left:0;
+    top:40px;
+    width:260px;
+    height: calc(100% - 40px);
+    background:#e4d0cd;
+    border-right:solid 1px #532;
+}
+.sidemenu p a {
+    display:block;
+    padding:20px 15px;
+    text-decoration:none;
+    font-weight:bold;
+    color:#532;
+}
+.sidemenu p{
+    margin:0;
+    border-bottom:solid 1px #963;
+}
+.sidemenu .container {
+    border-bottom:solid 2px #542;
+}
+.contents {
+    position:fixed;
+    left:0;
+    top:0%;
+    width:100%;
+    height:100%;
+    padding:15px;
+}
+header ~ .contents {
+    position:fixed;
+    left:0;
+    top:40px;
+    width:100%;
+    height:calc(100% - 40px);
+}
+.sidemenu + .contents {
+    position:fixed;
+    left:270px;
+    width: calc(100% - 260px);
+    height: 100%;
 }

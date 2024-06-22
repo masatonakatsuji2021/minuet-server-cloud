@@ -1,4 +1,27 @@
 "use strict";
+/**
+ * MIT License
+ *
+ * Copyright (c) 2024 Masato Nakatsuji
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -15,17 +38,19 @@ const minuet_server_1 = require("minuet-server");
 const minuet_script_engine_1 = require("minuet-script-engine");
 const minuet_server_web_1 = require("minuet-server-web");
 class MinuetCloud {
-    constructor(url, root, container, parentCloud) {
-        this.root = root;
-        this.container = container;
-        this.parentCloud = parentCloud;
+    constructor(options) {
+        this.root = options.root;
+        this.container = options.container;
+        this.parentCloud = options.parentCloud;
         this.containers = {};
         this.mse = new minuet_script_engine_1.Mse({
-            rootDir: root + "/renderings",
+            buffering: false,
+            rootDir: this.root + "/renderings",
         });
         this.web = new minuet_server_web_1.MinuetWeb({
-            url: url,
-            rootDir: root + "/webroot",
+            buffering: false,
+            url: options.url,
+            rootDir: this.root + "/webroot",
         });
     }
     listen(req, res, beforeRoute) {
@@ -98,6 +123,14 @@ class MinuetCloud {
                 if (controller.layout) {
                     const sandbox = new minuet_script_engine_1.SandBox();
                     sandbox.container = this.container;
+                    if (controller.viewData) {
+                        const vd = Object.keys(controller.viewData);
+                        for (let n = 0; n < vd.length; n++) {
+                            const name = vd[n];
+                            const value = controller.viewData[name];
+                            sandbox[name] = value;
+                        }
+                    }
                     sandbox.view = (viewPath) => __awaiter(this, void 0, void 0, function* () {
                         if (!viewPath) {
                             viewPath = "views/" + controller.view + this.mse.ext;
@@ -322,8 +355,11 @@ class MinuetCloud {
 exports.MinuetCloud = MinuetCloud;
 class MinuetServerModuleCloud extends minuet_server_1.MinuetServerModuleBase {
     onBegin() {
-        console.log(this.sector.root + "/" + this.init.tempDir);
-        this.cloud = new MinuetCloud("/", __dirname + "/src");
+        this.cloud = new MinuetCloud({
+            url: "/",
+            root: __dirname + "/src",
+            tempDir: this.sector.root + "/" + this.init.tempDir,
+        });
     }
     onRequest(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -336,7 +372,13 @@ exports.MinuetServerModuleCloud = MinuetServerModuleCloud;
 class MinuetCloudContainer {
     constructor(route, context) {
         const containerPath = require.resolve("minuet-cloud-" + route.container);
-        this.cloud = new MinuetCloud(route.parentUrl, path.dirname(containerPath) + "/src", route.container, context);
+        this.cloud = new MinuetCloud({
+            url: route.parentUrl,
+            root: path.dirname(containerPath) + "/src",
+            container: route.container,
+            parentCloud: context,
+            tempDir: context.tempDir,
+        });
     }
     listen(req, res, route) {
         return __awaiter(this, void 0, void 0, function* () {

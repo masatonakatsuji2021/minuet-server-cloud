@@ -6,10 +6,13 @@ export class MainController extends Controller {
     public layout : string = "type1";
 
     public async index() {
-        
+
     }
 
     public async login() {
-
+        this
+            .setData("hideHeader", true)
+            .setData("hideSIdemenu", true)
+        ;
     }
 }

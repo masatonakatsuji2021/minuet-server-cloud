@@ -65,9 +65,11 @@ export class MinuetCloud {
         this.parentCloud = options.parentCloud;
         this.containers = {};
         this.mse = new Mse({
+            buffering: false,
             rootDir: this.root + "/renderings",
         });
         this.web = new MinuetWeb({
+            buffering: false,
             url: options.url,
             rootDir: this.root + "/webroot",
         });
@@ -153,6 +155,16 @@ export class MinuetCloud {
                 if (controller.layout) {
                     const sandbox = new SandBox();
                     sandbox.container = this.container;
+
+                    if (controller.viewData) {
+                        const vd = Object.keys(controller.viewData);
+                        for (let n = 0 ; n < vd.length ; n++) {
+                            const name = vd[n];
+                            const value = controller.viewData[name];
+                            sandbox[name] = value;
+                        }
+                    }
+
                     sandbox.view = async (viewPath? : string) => {
                         if (!viewPath) {
                             viewPath = "views/" + controller.view + this.mse.ext;

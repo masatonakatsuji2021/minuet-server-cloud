@@ -1,0 +1,13 @@
+<div class="sidemenu">
+    <div class="container">
+        <p><a href="">Cloud A</a></p>
+        <p><a href="">Cloud B</a></p>
+        <p><a href="">Cloud C</a></p>
+        <p><a href="">Cloud D</a></p>
+    </div>
+    <div class="menu">
+        <p><a href="">User Account</a></p>
+        <p><a href="">Container</a></p>
+        <p><a href="">Setting</a></p>
+    </div>
+</div>

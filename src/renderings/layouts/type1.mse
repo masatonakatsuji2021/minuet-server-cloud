@@ -1,6 +1,16 @@
-....
+<!DOCTYPE html>
+<script mse>await this.parentViewPart("head");</script>
+<body>
 <script mse>
-await this.parentViewPart("header");
-await this.view();
-await this.parentViewPart("footer");
+if (!this.hideHeader) {
+    await this.parentViewPart("header");
+}
+if (!this.hideSIdemenu) {
+    await this.parentViewPart("sidemenu");
+}
 </script>
+<div class="contents">
+    <script mse>await this.view();</script>
+</div>
+</body>
+</html>

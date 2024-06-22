@@ -23,6 +23,9 @@ class MainController extends Controller_1.Controller {
     }
     login() {
         return __awaiter(this, void 0, void 0, function* () {
+            this
+                .setData("hideHeader", true)
+                .setData("hideSIdemenu", true);
         });
     }
 }

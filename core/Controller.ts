@@ -8,6 +8,12 @@ export class Controller {
     public layoutParent : boolean = true;
     public view : string = null;
     public autoRender: boolean = false;
+    public viewData : any = {};
+
+    public setData(name : string, value : any) : Controller {
+        this.viewData[name] = value;
+        return this;
+    }
 
     public constructor(req, res){
         this.req = req;

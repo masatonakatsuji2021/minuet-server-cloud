@@ -1,7 +1,7 @@
-<!DOCTYPE html>
-<html>
-<body>
-<link rel="stylesheet" href="/style.css">
 <header>
-    Header Area....
+    <h1>Minuet Cloud</h1>
+    <h2>XXXXXXXXX</h2>
+    <div class="user">
+        <p>User Name<a href="/adm/logout">Logout</a></p>
+    </div>
 </header>
