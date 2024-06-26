@@ -19,7 +19,4 @@ export default {
             "/": "controller=admContainer, action=index",
         },
     },
-    // cloud_a
-    "/cloud_a/*": "container=a, controller=main",
-    "/admin/cloud_a/*": "container=a, route=/admin",
 };

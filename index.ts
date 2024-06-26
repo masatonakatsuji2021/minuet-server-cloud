@@ -22,7 +22,9 @@
  * SOFTWARE.
  */
 
+import * as fs from "fs";
 import * as path from "path";
+import * as yaml from "js-yaml";
 import { IncomingMessage, ServerResponse } from "http";
 import { MinuetServerModuleBase } from "minuet-server";
 import { Mse, SandBox } from "minuet-script-engine";
@@ -78,11 +80,38 @@ export class MinuetCloud {
         });
     }
 
+    private countainerRoutes;
+
+    private getRouteData(){
+        
+        if(this.countainerRoutes){
+            return this.countainerRoutes;
+        }
+
+        let routes = require(this.root + "/routes").default;
+
+        if(fs.existsSync(__dirname + "/.container")){
+            const getContent = fs.readFileSync(__dirname + "/.container");
+            const cyaml = yaml.load(getContent);
+            const cc = Object.keys(cyaml);
+            for (let n = 0 ; n < cc.length ; n++) {
+                const url = cc[n];
+                const route = cyaml[url];
+                routes[url] = route;
+            }
+            this.countainerRoutes = routes;
+        }
+        
+        return routes;
+    }
+
     public async listen (req : IncomingMessage, res : ServerResponse, beforeRoute? : MinuetCloudRoute) {
 
         const status = await this.web.listen(req, res);
         if (status) return true;
-
+        
+        res.setHeader("content-type", "text/html");
+        
         if (beforeRoute){
             if (beforeRoute.route) {
                 if (beforeRoute.url == "/"){
@@ -98,7 +127,7 @@ export class MinuetCloud {
         }
 
         try{
-            let routes = require(this.root + "/routes").default;
+            let routes = this.getRouteData();
             routes = this.setRouteConvert(routes);
             const route = this.setRoute(req, routes);
     
@@ -120,12 +149,12 @@ export class MinuetCloud {
         }catch(error){
             if (error.toString().indexOf("Page Not Found") > -1) {
                 res.statusCode = 404;
-                res.write(error);
+                res.write(error.toString());
             }
             else {
                 res.statusCode = 500;
                 console.log(error.stack);
-                res.write(error.stack);
+                res.write(error.stack.toString());
             }
         }
 
@@ -221,9 +250,7 @@ export class MinuetCloud {
                 }
             }
     
-            if (!res.getHeader("content-type")) {
-                res.setHeader("content-type", "text/html");
-            }
+
     }
 
     private async routeContainer(route, req : IncomingMessage, res : ServerResponse) {
