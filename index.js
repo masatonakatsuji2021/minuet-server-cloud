@@ -149,7 +149,7 @@ class MinuetCloud {
             const controllerName = route.controller.substring(0, 1).toUpperCase() + route.controller.substring(1) + "Controller";
             const controllerPath = this.root + "/controllers/" + controllerName;
             const controllerClass = require(controllerPath)[controllerName];
-            let controller = new controllerClass(req, res);
+            let controller = new controllerClass(req, res, route);
             controller.view = route.controller + "/" + route.action;
             if (controller.filterBefore) {
                 const result = yield controller.filterBefore();
@@ -171,40 +171,40 @@ class MinuetCloud {
                 }
             }
             if (controller.autoRender) {
-                if (controller.layout) {
-                    const sandbox = new minuet_script_engine_1.SandBox();
-                    sandbox.container = this.container;
-                    sandbox.containerUrl = this.url;
-                    if (controller.viewData) {
-                        const vd = Object.keys(controller.viewData);
-                        for (let n = 0; n < vd.length; n++) {
-                            const name = vd[n];
-                            const value = controller.viewData[name];
-                            sandbox[name] = value;
-                        }
+                const sandbox = new minuet_script_engine_1.SandBox();
+                sandbox.container = this.container;
+                sandbox.containerUrl = this.url;
+                if (controller.viewData) {
+                    const vd = Object.keys(controller.viewData);
+                    for (let n = 0; n < vd.length; n++) {
+                        const name = vd[n];
+                        const value = controller.viewData[name];
+                        sandbox[name] = value;
                     }
-                    sandbox.view = (viewPath) => __awaiter(this, void 0, void 0, function* () {
-                        if (!viewPath) {
-                            viewPath = "views/" + controller.view + this.mse.ext;
-                        }
-                        else {
-                            viewPath = "views/" + viewPath + this.mse.ext;
-                        }
-                        return yield this.mse.load(viewPath, sandbox);
-                    });
-                    sandbox.viewPart = (partPath) => __awaiter(this, void 0, void 0, function* () {
-                        return yield this.mse.load("viewparts/" + partPath + this.mse.ext, sandbox);
-                    });
-                    sandbox.parentViewPart = (partPath) => __awaiter(this, void 0, void 0, function* () {
-                        partPath = "viewparts/" + partPath + this.mse.ext;
-                        if (sandbox.container) {
-                            const rawData = this.parentCloud.mse.getRaw(partPath);
-                            return yield this.mse.rawExec(rawData, sandbox);
-                        }
-                        else {
-                            return yield this.mse.load(partPath, sandbox);
-                        }
-                    });
+                }
+                sandbox.view = (viewPath) => __awaiter(this, void 0, void 0, function* () {
+                    if (!viewPath) {
+                        viewPath = "views/" + controller.view + this.mse.ext;
+                    }
+                    else {
+                        viewPath = "views/" + viewPath + this.mse.ext;
+                    }
+                    return yield this.mse.load(viewPath, sandbox);
+                });
+                sandbox.viewPart = (partPath) => __awaiter(this, void 0, void 0, function* () {
+                    return yield this.mse.load("viewparts/" + partPath + this.mse.ext, sandbox);
+                });
+                sandbox.parentViewPart = (partPath) => __awaiter(this, void 0, void 0, function* () {
+                    partPath = "viewparts/" + partPath + this.mse.ext;
+                    if (sandbox.container) {
+                        const rawData = this.parentCloud.mse.getRaw(partPath);
+                        return yield this.mse.rawExec(rawData, sandbox);
+                    }
+                    else {
+                        return yield this.mse.load(partPath, sandbox);
+                    }
+                });
+                if (controller.layout) {
                     const layoutPath = "layouts/" + controller.layout + this.mse.ext;
                     let result;
                     if (this.container && controller.layoutParent) {

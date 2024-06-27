@@ -31,7 +31,7 @@ import { Mse, SandBox } from "minuet-script-engine";
 import { MinuetWeb } from "minuet-server-web";
 import { Controller } from "minuet-server-cloud/core/Controller";
 
-interface MinuetCloudRoute {
+export interface MinuetCloudRoute {
     url: string,
     parentUrl: string,
     container: string,
@@ -192,7 +192,7 @@ export class MinuetCloud {
         const controllerPath = this.root + "/controllers/" + controllerName;
     
         const controllerClass = require(controllerPath)[controllerName];
-        let controller : Controller = new controllerClass(req, res);
+        let controller : Controller = new controllerClass(req, res, route);
         controller.view = route.controller + "/" + route.action;
                 
         if (controller.filterBefore) {
@@ -219,18 +219,17 @@ export class MinuetCloud {
         }
     
         if (controller.autoRender) {
-                if (controller.layout) {
-                    const sandbox = new SandBox();
-                    sandbox.container = this.container;
-                    sandbox.containerUrl = this.url;
-                    if (controller.viewData) {
-                        const vd = Object.keys(controller.viewData);
+            const sandbox = new SandBox();
+            sandbox.container = this.container;
+            sandbox.containerUrl = this.url;
+            if (controller.viewData) {
+                const vd = Object.keys(controller.viewData);
                         for (let n = 0 ; n < vd.length ; n++) {
                             const name = vd[n];
                             const value = controller.viewData[name];
                             sandbox[name] = value;
                         }
-                    }
+            }
 
                     sandbox.view = async (viewPath? : string) => {
                         if (!viewPath) {
@@ -256,6 +255,7 @@ export class MinuetCloud {
                         }
                     };
 
+                if (controller.layout) {
                     const layoutPath = "layouts/" + controller.layout + this.mse.ext;
                     let result;
 
