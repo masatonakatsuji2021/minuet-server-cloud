@@ -32,20 +32,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MinuetCloudContainer = exports.MinuetServerModuleCloud = exports.MinuetCloud = void 0;
+exports.MinuetCloudContainer = exports.MinuetServerModuleCloud = exports.MinuetCloud = exports.MinuetCloudStatics = void 0;
 const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
 const minuet_server_1 = require("minuet-server");
 const minuet_script_engine_1 = require("minuet-script-engine");
 const minuet_server_web_1 = require("minuet-server-web");
+class MinuetCloudStatics {
+}
+exports.MinuetCloudStatics = MinuetCloudStatics;
 class MinuetCloud {
     constructor(options) {
         this.root = options.root;
         this.container = options.container;
         this.parentCloud = options.parentCloud;
         this.url = options.url;
-        this.containers = {};
         this.mse = new minuet_script_engine_1.Mse({
             buffering: false,
             rootDir: this.root + "/renderings",
@@ -61,14 +63,31 @@ class MinuetCloud {
             return this.countainerRoutes;
         }
         let routes = require(this.root + "/routes").default;
+        // container list
         if (fs.existsSync(__dirname + "/.container")) {
             const getContent = fs.readFileSync(__dirname + "/.container");
             const cyaml = yaml.load(getContent);
             const cc = Object.keys(cyaml);
             for (let n = 0; n < cc.length; n++) {
-                const url = cc[n];
-                const route = cyaml[url];
-                routes[url] = route;
+                const containerName = cc[n];
+                const croutes = cyaml[containerName];
+                const cc2 = Object.keys(croutes);
+                let firstUrl;
+                for (let n2 = 0; n2 < cc2.length; n2++) {
+                    const url = cc2[n2];
+                    const route = croutes[url];
+                    routes[url] = route;
+                    if (n2 == 0)
+                        firstUrl = url.split("/*").join("");
+                }
+                // set container 
+                if (!MinuetCloudStatics.containers[containerName]) {
+                    const containerNpnName = "minuet-cloud-" + containerName;
+                    const containerClassName = "MinuetCloudContainer" + containerName.substring(0, 1).toUpperCase() + containerName.substring(1);
+                    const containerClass = require(containerNpnName)[containerClassName];
+                    const container = new containerClass(containerName, require.resolve(containerNpnName), firstUrl, this);
+                    MinuetCloudStatics.containers[containerName] = container;
+                }
             }
             this.countainerRoutes = routes;
         }
@@ -206,17 +225,7 @@ class MinuetCloud {
     }
     routeContainer(route, req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            let container;
-            if (this.containers[route.container]) {
-                container = this.containers[route.container];
-            }
-            else {
-                const containerNpnName = "minuet-cloud-" + route.container;
-                const containerName = "MinuetCloudContainer" + route.container.substring(0, 1).toUpperCase() + route.container.substring(1);
-                const containerClass = require(containerNpnName)[containerName];
-                container = new containerClass(route, this);
-                this.containers[route.container] = container;
-            }
+            let container = MinuetCloudStatics.containers[route.container];
             yield container.listen(req, res, route);
         });
     }
@@ -393,6 +402,9 @@ class MinuetServerModuleCloud extends minuet_server_1.MinuetServerModuleBase {
             root: __dirname + "/src",
             tempDir: this.sector.root + "/" + this.init.tempDir,
         });
+        MinuetCloudStatics.containers = {};
+        MinuetCloudStatics.containers["_"] = null;
+        MinuetCloudStatics.rootDir = __dirname + "/src";
     }
     onRequest(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -403,12 +415,11 @@ class MinuetServerModuleCloud extends minuet_server_1.MinuetServerModuleBase {
 }
 exports.MinuetServerModuleCloud = MinuetServerModuleCloud;
 class MinuetCloudContainer {
-    constructor(route, context) {
-        const containerPath = require.resolve("minuet-cloud-" + route.container);
+    constructor(containerName, containerPath, url, context) {
         this.cloud = new MinuetCloud({
-            url: route.parentUrl,
+            url: url,
             root: path.dirname(containerPath) + "/src",
-            container: route.container,
+            container: containerName,
             parentCloud: context,
             tempDir: context.tempDir,
         });
