@@ -403,7 +403,7 @@ class MinuetServerModuleCloud extends minuet_server_1.MinuetServerModuleBase {
             tempDir: this.sector.root + "/" + this.init.tempDir,
         });
         MinuetCloudStatics.containers = {};
-        MinuetCloudStatics.containers["_"] = null;
+        MinuetCloudStatics.containers["_"] = { cloud: this.cloud };
         MinuetCloudStatics.rootDir = __dirname + "/src";
     }
     onRequest(req, res) {

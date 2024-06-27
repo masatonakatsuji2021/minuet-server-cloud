@@ -14,7 +14,11 @@ export class Render {
 
     public async view(viewPath? : string) : Promise<IMseLoadResult> {
 
-        const container = MinuetCloudStatics.containers[this.route.container];
+        let containerName = this.route.container;
+        if (!this.route.container){
+            containerName = "_";   
+        }
+        const container = MinuetCloudStatics.containers[containerName];
 
         if (!viewPath) {
             viewPath = "views/" + this.controller.view + container.cloud.mse.ext;

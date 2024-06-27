@@ -18,7 +18,11 @@ class Render {
     }
     view(viewPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            const container = minuet_server_cloud_1.MinuetCloudStatics.containers[this.route.container];
+            let containerName = this.route.container;
+            if (!this.route.container) {
+                containerName = "_";
+            }
+            const container = minuet_server_cloud_1.MinuetCloudStatics.containers[containerName];
             if (!viewPath) {
                 viewPath = "views/" + this.controller.view + container.cloud.mse.ext;
             }

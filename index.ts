@@ -47,7 +47,10 @@ export class MinuetCloudStatics {
 }
 
 interface MinuetCloudContainers {
-    [x: string] : MinuetCloudContainer,
+    [x: string] : {
+        cloud : MinuetCloud,
+        listen?: (req: IncomingMessage, res: ServerResponse<IncomingMessage>, route? : MinuetCloudRoute) => Promise<boolean>,
+    },
 }
 
 interface MinuetCloudOption {
@@ -277,7 +280,7 @@ export class MinuetCloud {
     }
 
     private async routeContainer(route, req : IncomingMessage, res : ServerResponse) {
-        let container : MinuetCloudContainer = MinuetCloudStatics.containers[route.container];
+        let container = MinuetCloudStatics.containers[route.container];
         await container.listen(req, res, route);
     }
 
@@ -463,7 +466,7 @@ export class MinuetServerModuleCloud extends MinuetServerModuleBase {
             tempDir: this.sector.root + "/" + this.init.tempDir,
         });
         MinuetCloudStatics.containers = {};
-        MinuetCloudStatics.containers["_"] = null;
+        MinuetCloudStatics.containers["_"] = { cloud: this.cloud }
         MinuetCloudStatics.rootDir = __dirname + "/src";
     }
 
