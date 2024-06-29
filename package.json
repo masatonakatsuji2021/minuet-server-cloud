@@ -1,5 +1,30 @@
 {
+    "name": "minuet-server-cloud",
+    "version": "1.0.0",
+    "main": "index.js",
     "scripts": {
-        "start": "echo \"tsc\" && tsc && echo \"cd ../minuet-server/test\" && cd ../minuet-server/test && node ."
+        "run": "node cil.js",
+        "test": "echo \"tsc\" && tsc && echo \"cd ../minuet-server/test\" && cd ../minuet-server/test && node ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/masatonakatsuji2021/minuet-server-cloud.git"
+    },
+    "keywords": [
+        "cloud",
+        "cms",
+        "server",
+        "node"
+    ],
+    "author": "Masato Nakatsuji",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/masatonakatsuji2021/minuet-server-cloud/issues"
+    },
+    "homepage": "https://github.com/masatonakatsuji2021/minuet-server-cloud#readme",
+    "dependencies": {
+        "@types/node": "^20.12.12",
+        "js-yaml": "^4.1.0",
+        "minuet-server": "git+https://github.com/masatonakatsuji2021/minuet-server.git"
     }
 }
