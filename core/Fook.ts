@@ -4,7 +4,7 @@ export class Fook {
 
     public static action(fookName : string, fookMethodName? : string, args? : Array<any>) : Array<any> {
         let result = [];
-        
+        /*
         const fookClassName = fookName.substring(0,1).toUpperCase() + fookName.substring(1) + "Fook";
         const containers = MinuetCloudStatics.containers;
 
@@ -45,7 +45,7 @@ export class Fook {
                 console.log(err);
             }
         }
-
+*/
         
         return result;
     }

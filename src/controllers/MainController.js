@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MainController = void 0;
 const Controller_1 = require("minuet-server-cloud/core/Controller");
-const Fook_1 = require("minuet-server-cloud/core/Fook");
 class MainController extends Controller_1.Controller {
     constructor() {
         super(...arguments);
@@ -19,10 +18,15 @@ class MainController extends Controller_1.Controller {
     }
     index() {
         return __awaiter(this, void 0, void 0, function* () {
-            const target = Fook_1.Fook.action("test1", "run");
+            /*
+            // Fook
+            const target = Fook.action("test1", "run");
             this.res.write(target.join("<br>"));
-            const res = yield this.Render.view("index");
+    
+            // render view
+            const res = await this.Render.view("index");
             this.res.write(res.content);
+            */
         });
     }
 }

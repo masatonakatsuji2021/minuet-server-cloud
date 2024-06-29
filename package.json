@@ -1,5 +1,5 @@
 {
     "scripts": {
-        "start": "tsc && cd ../minuet-server/test && node ."
+        "start": "echo \"tsc\" && tsc && echo \"cd ../minuet-server/test\" && cd ../minuet-server/test && node ."
     }
 }
