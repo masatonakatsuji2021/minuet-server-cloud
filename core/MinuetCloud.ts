@@ -4,11 +4,11 @@ import * as yaml from "js-yaml";
 import { IncomingMessage, ServerResponse } from "http";
 import { Mse } from "minuet-script-engine";
 import { MinuetWeb } from "minuet-server-web";
-import { Controller } from "minuet-server-cloud";
+import { Controller, ErrorHandle } from "minuet-server-cloud";
 
 export class MinuetCloudStatics {
     public static root : string;
-    public static srcDir : string;
+    public static src : string;
     public static localDir : string;
     public static tempDir : string;
     public static containerTmpPath : string;
@@ -44,11 +44,11 @@ export class MinuetCloud {
 
     public constructor(option?) {
         MinuetCloudStatics.mse = new Mse({
-            rootDir : { "/" : MinuetCloudStatics.srcDir + "/renderings" },
+            rootDir : { "/" : MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/renderings" },
             buffering: false,
         });
         MinuetCloudStatics.web = new MinuetWeb({
-            rootDir : { "/" : MinuetCloudStatics.srcDir + "/webroot" },
+            rootDir : { "/" : MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/webroot" },
             buffering: false,
             headers: {
                 "cache-control": "max-age=3600",
@@ -58,7 +58,7 @@ export class MinuetCloud {
     }
 
     private setRoutes(){
-        let routes = require(MinuetCloudStatics.srcDir + "/routes").default;
+        let routes = require(MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/routes/access").default;
 
         // get container routing lists
         if (fs.existsSync(MinuetCloudStatics.containerTmpPath)) {
@@ -178,7 +178,7 @@ export class MinuetCloud {
 
         let routes;
         try{
-            routes = require(decisionPath + "/src/routes").default;
+            routes = require(decisionPath + "/" + MinuetCloudStatics.src + "/routes/access").default;
         }catch(err){}
 
         if (!routes){
@@ -339,18 +339,24 @@ export class MinuetCloud {
         const status = await MinuetCloudStatics.web.listen(req, res);
         if (status) return true;
 
-        res.setHeader("content-type", "text/html");
-
+        let route;
         try{
-            const route = this.getRoute(req);
-    
-            if (!route) {
-                throw new Error("Page Not Found");
-            }
+            res.setHeader("content-type", "text/html");
+
+            route = this.getRoute(req);
+
+            if (!route) this.notFound(res);
 
             // set controller
-            const controllerName = route.controller.substring(0,1).toUpperCase() + route.controller.substring(1) + "Controller";
-            const controllerPath = MinuetCloudStatics.srcDir + "/controllers/" + controllerName;
+            const controllerName : string = route.controller.substring(0,1).toUpperCase() + route.controller.substring(1) + "Controller";
+            let controllerPath : string;
+            if (route.container) {
+                const container = MinuetCloudStatics.containers[route.container];
+                controllerPath = container.root + "/" + MinuetCloudStatics.src + "/controllers/" + controllerName;
+            }
+            else {
+                controllerPath = MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/controllers/" + controllerName;
+            }
         
             const controllerClass = require(controllerPath)[controllerName];
             let controller : Controller = new controllerClass(req, res, route);
@@ -363,9 +369,7 @@ export class MinuetCloud {
                 }
             }
         
-            if (!controller[route.action]) {
-                throw Error("Page Not Found");
-            }
+            if (!controller[route.action]) this.notFound(res);
                 
             const result = await controller[route.action]();
             if (result) {
@@ -382,18 +386,99 @@ export class MinuetCloud {
             await controller.__rendering();
 
         }catch(error){
-            if (error.toString().indexOf("Page Not Found") > -1) {
-                res.statusCode = 404;
-                res.write(error.toString());
-            }
-            else {
-                res.statusCode = 500;
-                console.log(error.stack);
-                res.write(error.stack.toString());
-            }
+            await this.error(req, res, route, error);
         }
 
         res.end();
     }
 
+    private notFound(res : ServerResponse) {
+        res.statusCode = 404;
+        throw Error("Page Not Found");
+    }
+
+    private async error(req : IncomingMessage, res: ServerResponse, route : MinuetCloudRoute, error : Error) {
+        if (!res.statusCode) res.statusCode = 500;
+
+        const errorRoutes = require(MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/routes/error").default;
+
+        const firstClass = "ErrorHandle";
+
+        let errorhandlePaths = [
+            "minuet-server-cloud/src/errorhandles/" + firstClass,
+        ];
+
+        if (errorRoutes[res.statusCode]) {
+            const secondClass = errorRoutes[res.statusCode];
+            errorhandlePaths.unshift("minuet-server-cloud/src/errorhandles/" + secondClass);
+        }
+
+        if (route){
+            if (route.container && MinuetCloudStatics.containers[route.container]) {
+                const containerPath = MinuetCloudStatics.containers[route.container].root;
+
+                errorhandlePaths.unshift(containerPath + "/src/errorhandles/" + firstClass);
+
+                let errorRoutes;
+                try {
+                    errorRoutes = require(containerPath + "/" + MinuetCloudStatics.src + "/routes/error").default;
+                    if (errorRoutes[res.statusCode]) { 
+                        errorhandlePaths.unshift(containerPath + "/src/errorhandles/" + errorRoutes[res.statusCode]);
+                    }
+                }catch(err){}
+            }
+        }
+
+        let ehFlg : boolean = false;
+        let errorHandle : ErrorHandle;
+        for (let n = 0 ; n <errorhandlePaths.length ; n++) {
+            const handlePath = errorhandlePaths[n];
+
+            try{
+
+                let handleClass;
+                try{
+                    handleClass = require(handlePath)[path.basename(handlePath)];
+                }catch(err){
+                    continue;
+                }
+
+                errorHandle = new handleClass(req, res, route);
+                errorHandle.view = path.basename(handlePath);
+
+                ehFlg = true;
+
+                if (errorHandle.filterBefore) {
+                    const result = await errorHandle.filterBefore(error);
+                    if (result) {
+                        res.write(result);
+                    }
+                }
+                if (errorHandle.handle) {
+                    const result = await errorHandle.handle(error);
+                    if (result) {
+                        res.write(result);
+                    }
+                }
+
+                if (errorHandle.filterAfter) {
+                    const result = await errorHandle.filterAfter(error);
+                    if (result) {
+                        res.write(result);
+                    }
+                }
+
+                break;
+            }catch(err){
+                res.write(err.stack.toString());
+                break;
+            }
+        }
+
+        if (!ehFlg){
+            res.write(error.stack.toString());
+        }
+        console.log(error.stack);
+
+    }
 }

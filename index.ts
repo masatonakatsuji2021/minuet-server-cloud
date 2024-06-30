@@ -30,11 +30,13 @@ import {
     MinuetCloudRoute as mcr
 } from "minuet-server-cloud/core/MinuetCloud";
 import { Controller as c_ } from "minuet-server-cloud/core/Controller";
+import { AdminController as admc_ } from "minuet-server-cloud/src/controllers/AdminController";
 import { Fook as f_ } from "minuet-server-cloud/core/Fook";
 import { Render as r_ } from "minuet-server-cloud/core/Render";
 import { Console as co_ } from "minuet-server-cloud/core/Console";
 import { WebSocket as ws_ } from "minuet-server-cloud/core/WebSocket";
-
+import { ErrorHandle as eh_ } from "minuet-server-cloud/core/ErrorHandle";
+ 
 // MinuetCloudStatics
 export const MinuetCloudStatics = mcs;
 export type  MinuetCloudStatics = mcs;
@@ -62,13 +64,21 @@ export type  Console = co_;
 export const WebSocket = ws_;
 export type  WebSocket = ws_;
 
+// ErrorHandle
+export const ErrorHandle = eh_;
+export type  ErrorHandle = eh_;
+
+// AdminController
+export const AdminController = admc_;
+export type  AdminController = admc_;
+
 export class MinuetServerModuleCloud extends MinuetServerModuleBase {
 
     private cloud : MinuetCloud;
 
     public onBegin(): void {
         MinuetCloudStatics.root = __dirname;
-        MinuetCloudStatics.srcDir = MinuetCloudStatics.root + "/src";
+        MinuetCloudStatics.src = "src";
         MinuetCloudStatics.localDir = this.sector.root;
         MinuetCloudStatics.tempDir = MinuetCloudStatics.localDir + "/" + this.init.tempDir;
         MinuetCloudStatics.containerTmpPath = this.sector.root + "/.container";

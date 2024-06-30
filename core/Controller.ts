@@ -1,13 +1,12 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { IMseLoadResult } from "minuet-script-engine";
-import { Render } from "minuet-server-cloud";
-import { MinuetCloudStatics, MinuetCloudRoute } from "minuet-server-cloud";
+import { Render, MinuetCloudRoute } from "minuet-server-cloud";
 
 export class Controller {
 
     public req : IncomingMessage;
     public res : ServerResponse;
-
+    public error : boolean = false;
     public layout : string = null;
     public layoutParent : boolean = true;
     public view : string = null;
@@ -16,21 +15,21 @@ export class Controller {
     public Render : Render
     public route : MinuetCloudRoute;
 
-    public setData(name : string, value : any) : Controller {
-        this.viewData[name] = value;
-        return this;
-    }
-
-    public constructor(req, res, route){
+    public constructor(req : IncomingMessage, res : ServerResponse, route : MinuetCloudRoute){
         this.req = req;
         this.res = res;
         this.route = route;
         this.Render = new Render(route, this);
     }
 
-    public filterBefore?() : Promise<string|void>;
+    public setData(name : string, value : any) : Controller {
+        this.viewData[name] = value;
+        return this;
+    }
 
-    public filterAfter?() : Promise<string|void>;
+    public filterBefore?(any?) : Promise<string|void>;
+
+    public filterAfter?(any?) : Promise<string|void>;
     
     public async __rendering() {
 

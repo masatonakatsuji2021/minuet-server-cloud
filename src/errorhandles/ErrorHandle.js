@@ -9,38 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Controller = void 0;
+exports.ErrorHandle = void 0;
 const minuet_server_cloud_1 = require("minuet-server-cloud");
-class Controller {
-    constructor(req, res, route) {
-        this.error = false;
-        this.layout = null;
-        this.layoutParent = true;
-        this.view = null;
-        this.autoRender = false;
-        this.viewData = {};
-        this.req = req;
-        this.res = res;
-        this.route = route;
-        this.Render = new minuet_server_cloud_1.Render(route, this);
-    }
-    setData(name, value) {
-        this.viewData[name] = value;
-        return this;
-    }
-    __rendering() {
+class ErrorHandle extends minuet_server_cloud_1.ErrorHandle {
+    handle(error) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this.autoRender)
-                return;
-            let result;
-            if (this.layout) {
-                result = yield this.Render.layout();
-            }
-            else {
-                result = yield this.Render.view();
-            }
-            this.res.write(result.content);
+            const res = yield this.Render.parentView(this.view);
+            this.res.write(res.content);
         });
     }
 }
-exports.Controller = Controller;
+exports.ErrorHandle = ErrorHandle;

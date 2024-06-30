@@ -32,14 +32,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MinuetServerModuleCloud = exports.WebSocket = exports.Console = exports.Render = exports.Fook = exports.Controller = exports.MinuetCloudStatics = void 0;
+exports.MinuetServerModuleCloud = exports.AdminController = exports.ErrorHandle = exports.WebSocket = exports.Console = exports.Render = exports.Fook = exports.Controller = exports.MinuetCloudStatics = void 0;
 const minuet_server_1 = require("minuet-server");
 const MinuetCloud_1 = require("minuet-server-cloud/core/MinuetCloud");
 const Controller_1 = require("minuet-server-cloud/core/Controller");
+const AdminController_1 = require("minuet-server-cloud/src/controllers/AdminController");
 const Fook_1 = require("minuet-server-cloud/core/Fook");
 const Render_1 = require("minuet-server-cloud/core/Render");
 const Console_1 = require("minuet-server-cloud/core/Console");
 const WebSocket_1 = require("minuet-server-cloud/core/WebSocket");
+const ErrorHandle_1 = require("minuet-server-cloud/core/ErrorHandle");
 // MinuetCloudStatics
 exports.MinuetCloudStatics = MinuetCloud_1.MinuetCloudStatics;
 // Controller
@@ -52,10 +54,14 @@ exports.Render = Render_1.Render;
 exports.Console = Console_1.Console;
 // WebSocket
 exports.WebSocket = WebSocket_1.WebSocket;
+// ErrorHandle
+exports.ErrorHandle = ErrorHandle_1.ErrorHandle;
+// AdminController
+exports.AdminController = AdminController_1.AdminController;
 class MinuetServerModuleCloud extends minuet_server_1.MinuetServerModuleBase {
     onBegin() {
         exports.MinuetCloudStatics.root = __dirname;
-        exports.MinuetCloudStatics.srcDir = exports.MinuetCloudStatics.root + "/src";
+        exports.MinuetCloudStatics.src = "src";
         exports.MinuetCloudStatics.localDir = this.sector.root;
         exports.MinuetCloudStatics.tempDir = exports.MinuetCloudStatics.localDir + "/" + this.init.tempDir;
         exports.MinuetCloudStatics.containerTmpPath = this.sector.root + "/.container";

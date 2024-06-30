@@ -60,56 +60,83 @@ class Render {
         sandbox.setSandBox = this.setSandBox;
         return sandbox;
     }
+    /**
+     * ***view*** - Load the rendering view file with Minute-Script-Engine.
+     * If you do not specify the viewPath argument,
+     * it will automatically load with the path of the View member variable of the Controller or ErrorHandle.
+     * @param {string} viewPath - View File Name
+     * @returns
+     */
     view(viewPath) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!viewPath)
                 viewPath = this.controller.view;
             if (this.route.container) {
-                viewPath = "/" + this.route.container + "/views/" + viewPath + minuet_server_cloud_1.MinuetCloudStatics.mse.ext;
+                return yield this.containerView(viewPath, this.route.container);
             }
             else {
-                viewPath = "views/" + viewPath + minuet_server_cloud_1.MinuetCloudStatics.mse.ext;
+                return yield this.parentView(viewPath);
             }
-            if (!this.sandbox) {
-                this.sandbox = this.setSandBox();
-            }
-            return yield minuet_server_cloud_1.MinuetCloudStatics.mse.load(viewPath, this.sandbox);
         });
     }
     ;
+    /**
+     * ***parentView*** - Forces the parent screen's View file to be loaded by Minute-Script-Engine.
+     * @param {string} viewPath - View File Name
+     * @returns
+     */
     parentView(viewPath) {
         return __awaiter(this, void 0, void 0, function* () {
+            let directory = "views";
+            if (this.controller.error)
+                directory = "errors";
+            viewPath = directory + "/" + viewPath + minuet_server_cloud_1.MinuetCloudStatics.mse.ext;
+            if (!this.sandbox)
+                this.sandbox = this.setSandBox();
+            return yield minuet_server_cloud_1.MinuetCloudStatics.mse.load(viewPath, this.sandbox);
         });
     }
+    /**
+     * ***containerView*** - Loads the View file for the specified CloudContainer using Minute-Script-Engine..
+     * @param {string} viewPath - View File Name
+     * @param {string} container - Cloud COntainer Name
+     * @returns
+     */
     containerView(viewPath, container) {
         return __awaiter(this, void 0, void 0, function* () {
+            let directory = "views";
+            if (this.controller.error)
+                directory = "errors";
+            viewPath = "/" + container + "/" + directory + "/" + viewPath + minuet_server_cloud_1.MinuetCloudStatics.mse.ext;
+            if (!this.sandbox)
+                this.sandbox = this.setSandBox();
+            return yield minuet_server_cloud_1.MinuetCloudStatics.mse.load(viewPath, this.sandbox);
         });
     }
     viewPart(viewPartPath) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.route.container) {
-                viewPartPath = "/" + this.route.container + "/viewparts/" + viewPartPath + minuet_server_cloud_1.MinuetCloudStatics.mse.ext;
+                return yield this.containerViewPart(viewPartPath, this.route.container);
             }
             else {
-                viewPartPath = "viewparts/" + viewPartPath + minuet_server_cloud_1.MinuetCloudStatics.mse.ext;
+                return yield this.parentViewPart(viewPartPath);
             }
-            if (!this.sandbox) {
-                this.sandbox = this.setSandBox();
-            }
-            return yield minuet_server_cloud_1.MinuetCloudStatics.mse.load(viewPartPath, this.sandbox);
         });
     }
     parentViewPart(viewPartPath) {
         return __awaiter(this, void 0, void 0, function* () {
             viewPartPath = "viewparts/" + viewPartPath + minuet_server_cloud_1.MinuetCloudStatics.mse.ext;
-            if (!this.sandbox) {
+            if (!this.sandbox)
                 this.sandbox = this.setSandBox();
-            }
             return yield minuet_server_cloud_1.MinuetCloudStatics.mse.load(viewPartPath, this.sandbox);
         });
     }
-    containerViewPart(viewpartPath, container) {
+    containerViewPart(viewPartPath, container) {
         return __awaiter(this, void 0, void 0, function* () {
+            viewPartPath = "/" + container + "/viewparts/" + viewPartPath + minuet_server_cloud_1.MinuetCloudStatics.mse.ext;
+            if (!this.sandbox)
+                this.sandbox = this.setSandBox();
+            return yield minuet_server_cloud_1.MinuetCloudStatics.mse.load(viewPartPath, this.sandbox);
         });
     }
     layout(layoutPath) {

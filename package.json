@@ -2,8 +2,10 @@
     "name": "minuet-server-cloud",
     "version": "1.0.0",
     "main": "index.js",
+    "bin": {
+        "minuet-cloud": "node cli.js"
+    },
     "scripts": {
-        "run": "node cil.js",
         "test": "echo \"tsc\" && tsc && echo \"cd ../minuet-server/test\" && cd ../minuet-server/test && node ."
     },
     "repository": {

@@ -22,11 +22,11 @@ MinuetCloudStatics.containers = {};
 class MinuetCloud {
     constructor(option) {
         MinuetCloudStatics.mse = new minuet_script_engine_1.Mse({
-            rootDir: { "/": MinuetCloudStatics.srcDir + "/renderings" },
+            rootDir: { "/": MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/renderings" },
             buffering: false,
         });
         MinuetCloudStatics.web = new minuet_server_web_1.MinuetWeb({
-            rootDir: { "/": MinuetCloudStatics.srcDir + "/webroot" },
+            rootDir: { "/": MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/webroot" },
             buffering: false,
             headers: {
                 "cache-control": "max-age=3600",
@@ -35,7 +35,7 @@ class MinuetCloud {
         this.setRoutes();
     }
     setRoutes() {
-        let routes = require(MinuetCloudStatics.srcDir + "/routes").default;
+        let routes = require(MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/routes/access").default;
         // get container routing lists
         if (fs.existsSync(MinuetCloudStatics.containerTmpPath)) {
             if (fs.statSync(MinuetCloudStatics.containerTmpPath).isFile()) {
@@ -144,7 +144,7 @@ class MinuetCloud {
         }
         let routes;
         try {
-            routes = require(decisionPath + "/src/routes").default;
+            routes = require(decisionPath + "/" + MinuetCloudStatics.src + "/routes/access").default;
         }
         catch (err) { }
         if (!routes) {
@@ -295,15 +295,22 @@ class MinuetCloud {
             const status = yield MinuetCloudStatics.web.listen(req, res);
             if (status)
                 return true;
-            res.setHeader("content-type", "text/html");
+            let route;
             try {
-                const route = this.getRoute(req);
-                if (!route) {
-                    throw new Error("Page Not Found");
-                }
+                res.setHeader("content-type", "text/html");
+                route = this.getRoute(req);
+                if (!route)
+                    this.notFound(res);
                 // set controller
                 const controllerName = route.controller.substring(0, 1).toUpperCase() + route.controller.substring(1) + "Controller";
-                const controllerPath = MinuetCloudStatics.srcDir + "/controllers/" + controllerName;
+                let controllerPath;
+                if (route.container) {
+                    const container = MinuetCloudStatics.containers[route.container];
+                    controllerPath = container.root + "/" + MinuetCloudStatics.src + "/controllers/" + controllerName;
+                }
+                else {
+                    controllerPath = MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/controllers/" + controllerName;
+                }
                 const controllerClass = require(controllerPath)[controllerName];
                 let controller = new controllerClass(req, res, route);
                 controller.view = route.controller + "/" + route.action;
@@ -313,9 +320,8 @@ class MinuetCloud {
                         res.write(result);
                     }
                 }
-                if (!controller[route.action]) {
-                    throw Error("Page Not Found");
-                }
+                if (!controller[route.action])
+                    this.notFound(res);
                 const result = yield controller[route.action]();
                 if (result) {
                     res.write(result);
@@ -329,17 +335,86 @@ class MinuetCloud {
                 yield controller.__rendering();
             }
             catch (error) {
-                if (error.toString().indexOf("Page Not Found") > -1) {
-                    res.statusCode = 404;
-                    res.write(error.toString());
-                }
-                else {
-                    res.statusCode = 500;
-                    console.log(error.stack);
-                    res.write(error.stack.toString());
-                }
+                yield this.error(req, res, route, error);
             }
             res.end();
+        });
+    }
+    notFound(res) {
+        res.statusCode = 404;
+        throw Error("Page Not Found");
+    }
+    error(req, res, route, error) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!res.statusCode)
+                res.statusCode = 500;
+            const errorRoutes = require(MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/routes/error").default;
+            const firstClass = "ErrorHandle";
+            let errorhandlePaths = [
+                "minuet-server-cloud/src/errorhandles/" + firstClass,
+            ];
+            if (errorRoutes[res.statusCode]) {
+                const secondClass = errorRoutes[res.statusCode];
+                errorhandlePaths.unshift("minuet-server-cloud/src/errorhandles/" + secondClass);
+            }
+            if (route) {
+                if (route.container && MinuetCloudStatics.containers[route.container]) {
+                    const containerPath = MinuetCloudStatics.containers[route.container].root;
+                    errorhandlePaths.unshift(containerPath + "/src/errorhandles/" + firstClass);
+                    let errorRoutes;
+                    try {
+                        errorRoutes = require(containerPath + "/" + MinuetCloudStatics.src + "/routes/error").default;
+                        if (errorRoutes[res.statusCode]) {
+                            errorhandlePaths.unshift(containerPath + "/src/errorhandles/" + errorRoutes[res.statusCode]);
+                        }
+                    }
+                    catch (err) { }
+                }
+            }
+            let ehFlg = false;
+            let errorHandle;
+            for (let n = 0; n < errorhandlePaths.length; n++) {
+                const handlePath = errorhandlePaths[n];
+                try {
+                    let handleClass;
+                    try {
+                        handleClass = require(handlePath)[path.basename(handlePath)];
+                    }
+                    catch (err) {
+                        continue;
+                    }
+                    errorHandle = new handleClass(req, res, route);
+                    errorHandle.view = path.basename(handlePath);
+                    ehFlg = true;
+                    if (errorHandle.filterBefore) {
+                        const result = yield errorHandle.filterBefore(error);
+                        if (result) {
+                            res.write(result);
+                        }
+                    }
+                    if (errorHandle.handle) {
+                        const result = yield errorHandle.handle(error);
+                        if (result) {
+                            res.write(result);
+                        }
+                    }
+                    if (errorHandle.filterAfter) {
+                        const result = yield errorHandle.filterAfter(error);
+                        if (result) {
+                            res.write(result);
+                        }
+                    }
+                    break;
+                }
+                catch (err) {
+                    res.write(err.stack.toString());
+                    break;
+                }
+            }
+            if (!ehFlg) {
+                res.write(error.stack.toString());
+            }
+            console.log(error.stack);
         });
     }
 }
