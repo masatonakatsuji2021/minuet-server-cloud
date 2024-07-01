@@ -11,7 +11,6 @@ export class Controller {
     public layoutParent : boolean = true;
     public view : string = null;
     public autoRender: boolean = false;
-    public viewData : any = {};
     public Render : Render
     public route : MinuetCloudRoute;
 
@@ -20,11 +19,6 @@ export class Controller {
         this.res = res;
         this.route = route;
         this.Render = new Render(route, this);
-    }
-
-    public setData(name : string, value : any) : Controller {
-        this.viewData[name] = value;
-        return this;
     }
 
     public filterBefore?(any?) : Promise<string|void>;

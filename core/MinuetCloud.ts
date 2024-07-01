@@ -4,41 +4,7 @@ import * as yaml from "js-yaml";
 import { IncomingMessage, ServerResponse } from "http";
 import { Mse } from "minuet-script-engine";
 import { MinuetWeb } from "minuet-server-web";
-import { Controller, ErrorHandle } from "minuet-server-cloud";
-
-export class MinuetCloudStatics {
-    public static root : string;
-    public static src : string;
-    public static localDir : string;
-    public static tempDir : string;
-    public static containerTmpPath : string;
-    public static routes : MinuetCloudRoutes;
-    public static containers: MinuetCloudContainers = {};
-    public static mse : Mse;
-    public static web : MinuetWeb;
-}
-
-export interface MinuetCloudRoutes {
-    [url : string] : MinuetCloudRoute,
-}
-
-export interface MinuetCloudRoute {
-    url? : string,
-    container? : string,
-    controller? : string,
-    action? : string,
-    args? : Array<string>,
-    type? : string,
-}
-
-export interface MinuetCloudContainers {
-    [containerName : string] : MinuetCloudContainer,
-}
-
-export interface MinuetCloudContainer {
-    name? : string,
-    root? : string,
-}
+import { Controller, ErrorHandle, MinuetCloudStatics, MinuetCloudRoutes, MinuetCloudRoute } from "minuet-server-cloud";
 
 export class MinuetCloud {
 
@@ -204,7 +170,10 @@ export class MinuetCloud {
     }
 
     private getRoute(req: IncomingMessage) {
-        const url = req.url.split("?")[0];
+        let url = req.url.split("?")[0];
+        if (url != "/" && url[url.length - 1] == "/") {
+            url = url.substring(0, url.length- 1);
+        }
         let urls = url.split("/");
         if (urls[0] == "") {
             urls.shift();

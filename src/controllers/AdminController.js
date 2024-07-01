@@ -22,9 +22,9 @@ class AdminController extends Controller_1.Controller {
     }
     login() {
         return __awaiter(this, void 0, void 0, function* () {
-            this
-                .setData("hideHeader", true)
-                .setData("hideSIdemenu", true);
+            this.Render
+                .set("hideHeader", true)
+                .set("hideSIdemenu", true);
         });
     }
     logout() {

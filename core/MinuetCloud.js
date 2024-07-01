@@ -9,24 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MinuetCloud = exports.MinuetCloudStatics = void 0;
+exports.MinuetCloud = void 0;
 const path = require("path");
 const fs = require("fs");
 const yaml = require("js-yaml");
 const minuet_script_engine_1 = require("minuet-script-engine");
 const minuet_server_web_1 = require("minuet-server-web");
-class MinuetCloudStatics {
-}
-exports.MinuetCloudStatics = MinuetCloudStatics;
-MinuetCloudStatics.containers = {};
+const minuet_server_cloud_1 = require("minuet-server-cloud");
 class MinuetCloud {
     constructor(option) {
-        MinuetCloudStatics.mse = new minuet_script_engine_1.Mse({
-            rootDir: { "/": MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/renderings" },
+        minuet_server_cloud_1.MinuetCloudStatics.mse = new minuet_script_engine_1.Mse({
+            rootDir: { "/": minuet_server_cloud_1.MinuetCloudStatics.root + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/renderings" },
             buffering: false,
         });
-        MinuetCloudStatics.web = new minuet_server_web_1.MinuetWeb({
-            rootDir: { "/": MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/webroot" },
+        minuet_server_cloud_1.MinuetCloudStatics.web = new minuet_server_web_1.MinuetWeb({
+            rootDir: { "/": minuet_server_cloud_1.MinuetCloudStatics.root + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/webroot" },
             buffering: false,
             headers: {
                 "cache-control": "max-age=3600",
@@ -35,11 +32,11 @@ class MinuetCloud {
         this.setRoutes();
     }
     setRoutes() {
-        let routes = require(MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/routes/access").default;
+        let routes = require(minuet_server_cloud_1.MinuetCloudStatics.root + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/routes/access").default;
         // get container routing lists
-        if (fs.existsSync(MinuetCloudStatics.containerTmpPath)) {
-            if (fs.statSync(MinuetCloudStatics.containerTmpPath).isFile()) {
-                const getcontainerTmp = fs.readFileSync(MinuetCloudStatics.containerTmpPath).toString();
+        if (fs.existsSync(minuet_server_cloud_1.MinuetCloudStatics.containerTmpPath)) {
+            if (fs.statSync(minuet_server_cloud_1.MinuetCloudStatics.containerTmpPath).isFile()) {
+                const getcontainerTmp = fs.readFileSync(minuet_server_cloud_1.MinuetCloudStatics.containerTmpPath).toString();
                 const cyaml = yaml.load(getcontainerTmp);
                 const c = Object.keys(cyaml);
                 for (let n = 0; n < c.length; n++) {
@@ -49,7 +46,7 @@ class MinuetCloud {
                 }
             }
         }
-        MinuetCloudStatics.routes = this.convertRoutes(routes);
+        minuet_server_cloud_1.MinuetCloudStatics.routes = this.convertRoutes(routes);
     }
     convertRoutes(routes, container) {
         let result = {};
@@ -114,11 +111,11 @@ class MinuetCloud {
             type = "default";
         }
         let decisionPath;
-        if (!MinuetCloudStatics.containers[container]) {
+        if (!minuet_server_cloud_1.MinuetCloudStatics.containers[container]) {
             const fullContainerPathLists = [
                 "minuet-cloud-" + container,
-                MinuetCloudStatics.localDir + "/node_modules/minuet-cloud-" + container,
-                MinuetCloudStatics.localDir + "/node_modules/" + container,
+                minuet_server_cloud_1.MinuetCloudStatics.localDir + "/node_modules/minuet-cloud-" + container,
+                minuet_server_cloud_1.MinuetCloudStatics.localDir + "/node_modules/" + container,
                 container,
             ];
             try {
@@ -132,19 +129,19 @@ class MinuetCloud {
             }
             if (!decisionPath)
                 return;
-            MinuetCloudStatics.containers[container] = {
+            minuet_server_cloud_1.MinuetCloudStatics.containers[container] = {
                 name: container,
                 root: decisionPath,
             };
-            MinuetCloudStatics.mse.addRootDir("/" + container, decisionPath + "/src/renderings");
-            MinuetCloudStatics.web.addRootDir("/" + container, decisionPath + "/src/webroot");
+            minuet_server_cloud_1.MinuetCloudStatics.mse.addRootDir("/" + container, decisionPath + "/src/renderings");
+            minuet_server_cloud_1.MinuetCloudStatics.web.addRootDir("/" + container, decisionPath + "/src/webroot");
         }
         else {
-            decisionPath = MinuetCloudStatics.containers[container].root;
+            decisionPath = minuet_server_cloud_1.MinuetCloudStatics.containers[container].root;
         }
         let routes;
         try {
-            routes = require(decisionPath + "/" + MinuetCloudStatics.src + "/routes/access").default;
+            routes = require(decisionPath + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/routes/access").default;
         }
         catch (err) { }
         if (!routes) {
@@ -165,12 +162,15 @@ class MinuetCloud {
         return result;
     }
     getRoute(req) {
-        const url = req.url.split("?")[0];
+        let url = req.url.split("?")[0];
+        if (url != "/" && url[url.length - 1] == "/") {
+            url = url.substring(0, url.length - 1);
+        }
         let urls = url.split("/");
         if (urls[0] == "") {
             urls.shift();
         }
-        const r = Object.keys(MinuetCloudStatics.routes);
+        const r = Object.keys(minuet_server_cloud_1.MinuetCloudStatics.routes);
         let decisionRoute;
         let matrixA = {};
         let matrixB = {};
@@ -181,7 +181,7 @@ class MinuetCloud {
             if (targetUrls[0] == "") {
                 targetUrls.shift();
             }
-            const route = MinuetCloudStatics.routes[targetUrl];
+            const route = minuet_server_cloud_1.MinuetCloudStatics.routes[targetUrl];
             let argAny = false;
             for (let n2 = 0; n2 < targetUrls.length; n2++) {
                 const a1 = urls[n2];
@@ -264,7 +264,7 @@ class MinuetCloud {
                 }
             }
             if (juge) {
-                decisionRoute = MinuetCloudStatics.routes[targetUrl];
+                decisionRoute = minuet_server_cloud_1.MinuetCloudStatics.routes[targetUrl];
                 let decisionUrl = url;
                 let turl = targetUrl.split("/*").join("");
                 if (decisionRoute.container) {
@@ -292,7 +292,7 @@ class MinuetCloud {
      */
     listen(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const status = yield MinuetCloudStatics.web.listen(req, res);
+            const status = yield minuet_server_cloud_1.MinuetCloudStatics.web.listen(req, res);
             if (status)
                 return true;
             let route;
@@ -305,11 +305,11 @@ class MinuetCloud {
                 const controllerName = route.controller.substring(0, 1).toUpperCase() + route.controller.substring(1) + "Controller";
                 let controllerPath;
                 if (route.container) {
-                    const container = MinuetCloudStatics.containers[route.container];
-                    controllerPath = container.root + "/" + MinuetCloudStatics.src + "/controllers/" + controllerName;
+                    const container = minuet_server_cloud_1.MinuetCloudStatics.containers[route.container];
+                    controllerPath = container.root + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/controllers/" + controllerName;
                 }
                 else {
-                    controllerPath = MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/controllers/" + controllerName;
+                    controllerPath = minuet_server_cloud_1.MinuetCloudStatics.root + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/controllers/" + controllerName;
                 }
                 const controllerClass = require(controllerPath)[controllerName];
                 let controller = new controllerClass(req, res, route);
@@ -348,7 +348,7 @@ class MinuetCloud {
         return __awaiter(this, void 0, void 0, function* () {
             if (!res.statusCode)
                 res.statusCode = 500;
-            const errorRoutes = require(MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/routes/error").default;
+            const errorRoutes = require(minuet_server_cloud_1.MinuetCloudStatics.root + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/routes/error").default;
             const firstClass = "ErrorHandle";
             let errorhandlePaths = [
                 "minuet-server-cloud/src/errorhandles/" + firstClass,
@@ -358,12 +358,12 @@ class MinuetCloud {
                 errorhandlePaths.unshift("minuet-server-cloud/src/errorhandles/" + secondClass);
             }
             if (route) {
-                if (route.container && MinuetCloudStatics.containers[route.container]) {
-                    const containerPath = MinuetCloudStatics.containers[route.container].root;
+                if (route.container && minuet_server_cloud_1.MinuetCloudStatics.containers[route.container]) {
+                    const containerPath = minuet_server_cloud_1.MinuetCloudStatics.containers[route.container].root;
                     errorhandlePaths.unshift(containerPath + "/src/errorhandles/" + firstClass);
                     let errorRoutes;
                     try {
-                        errorRoutes = require(containerPath + "/" + MinuetCloudStatics.src + "/routes/error").default;
+                        errorRoutes = require(containerPath + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/routes/error").default;
                         if (errorRoutes[res.statusCode]) {
                             errorhandlePaths.unshift(containerPath + "/src/errorhandles/" + errorRoutes[res.statusCode]);
                         }

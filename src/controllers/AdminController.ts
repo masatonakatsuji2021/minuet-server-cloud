@@ -8,9 +8,9 @@ export class AdminController extends Controller {
     public async index() { }
 
     public async login() {
-        this
-            .setData("hideHeader", true)
-            .setData("hideSIdemenu", true)
+        this.Render
+            .set("hideHeader", true)
+            .set("hideSIdemenu", true)
         ;
     }
 

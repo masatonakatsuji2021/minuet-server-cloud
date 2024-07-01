@@ -6,6 +6,7 @@ export class Render {
     private route : MinuetCloudRoute;
     private controller : Controller;
     private sandbox : SandBox;
+    private data = {};
 
     public constructor(route, controller){
         this.route = route;
@@ -17,11 +18,11 @@ export class Render {
         sandbox.route = this.route;
         sandbox.controller = this.controller;
             
-        if (this.controller.viewData) {
-            const vd = Object.keys(this.controller.viewData);
+        if (this.data) {
+            const vd = Object.keys(this.data);
             for (let n = 0 ; n < vd.length ; n++) {
                 const name = vd[n];
-                const value = this.controller.viewData[name];
+                const value = this.data[name];
                 sandbox[name] = value;
             }
         }
@@ -57,6 +58,17 @@ export class Render {
         sandbox.setSandBox = this.setSandBox;
 
         return sandbox;
+    }
+
+    /**
+     * ***set*** : Passes data to the rendering side, such as View, ViewPart, and Layout.
+     * @param {string} name 
+     * @param {ayn} value 
+     * @returns 
+     */
+    public set(name : string, value : any) : Render {
+        this.data[name] = value;
+        return this;
     }
 
     /**

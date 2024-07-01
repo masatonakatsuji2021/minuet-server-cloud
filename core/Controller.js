@@ -18,15 +18,10 @@ class Controller {
         this.layoutParent = true;
         this.view = null;
         this.autoRender = false;
-        this.viewData = {};
         this.req = req;
         this.res = res;
         this.route = route;
         this.Render = new minuet_server_cloud_1.Render(route, this);
-    }
-    setData(name, value) {
-        this.viewData[name] = value;
-        return this;
     }
     __rendering() {
         return __awaiter(this, void 0, void 0, function* () {

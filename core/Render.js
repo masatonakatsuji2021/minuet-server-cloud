@@ -14,6 +14,7 @@ const minuet_server_cloud_1 = require("minuet-server-cloud");
 const minuet_script_engine_1 = require("minuet-script-engine");
 class Render {
     constructor(route, controller) {
+        this.data = {};
         this.route = route;
         this.controller = controller;
     }
@@ -21,11 +22,11 @@ class Render {
         const sandbox = new minuet_script_engine_1.SandBox();
         sandbox.route = this.route;
         sandbox.controller = this.controller;
-        if (this.controller.viewData) {
-            const vd = Object.keys(this.controller.viewData);
+        if (this.data) {
+            const vd = Object.keys(this.data);
             for (let n = 0; n < vd.length; n++) {
                 const name = vd[n];
-                const value = this.controller.viewData[name];
+                const value = this.data[name];
                 sandbox[name] = value;
             }
         }
@@ -59,6 +60,16 @@ class Render {
         sandbox.sandbox = this.sandbox;
         sandbox.setSandBox = this.setSandBox;
         return sandbox;
+    }
+    /**
+     * ***set*** : Passes data to the rendering side, such as View, ViewPart, and Layout.
+     * @param {string} name
+     * @param {ayn} value
+     * @returns
+     */
+    set(name, value) {
+        this.data[name] = value;
+        return this;
     }
     /**
      * ***view*** - Load the rendering view file with Minute-Script-Engine.
