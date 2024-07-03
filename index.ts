@@ -60,7 +60,9 @@ export class MinuetServerModuleCloud extends MinuetServerModuleBase {
         MinuetCloudStatics.src = "src";
         MinuetCloudStatics.localDir = this.sector.root;
         MinuetCloudStatics.tempDir = MinuetCloudStatics.localDir + "/" + this.init.tempDir;
-        MinuetCloudStatics.containerTmpPath = this.sector.root + "/.container";
+        MinuetCloudStatics.containersInit = this.init.containers;
+        MinuetCloudStatics.routeConverts = this.init.routeConverts;
+//        MinuetCloudStatics.containerTmpPath = MinuetCloudStatics.localDir + "/.container";
         this.cloud = new MinuetCloud();
     }
 

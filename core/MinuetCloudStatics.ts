@@ -7,9 +7,14 @@ export class MinuetCloudStatics {
     public static src : string;
     public static localDir : string;
     public static tempDir : string;
-    public static containerTmpPath : string;
+    public static containersInit : {[containerName: string] : MinuetCloudContainerRoute };
+    public static routeConverts : {[url: string] : string};
     public static routes : MinuetCloudRoutes;
     public static containers: MinuetCloudContainers = {};
     public static mse : Mse;
     public static web : MinuetWeb;
+}
+
+interface MinuetCloudContainerRoute {
+    [url: string] : string,
 }

@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
-    "/": "controller=main, action=index",
     "/admin": {
         // admin top
         "/": "controller=admin, action=index",
@@ -15,6 +14,7 @@ exports.default = {
         "/account": {
             "/": "controller=admAccount, action=index",
             "/edit/{?id}": "controller=admAccount, action=edit",
+            "/edit2/{id1}/{?id2}": "controller=admAccount, action=edit2",
         },
         // admin container
         "/container": {

@@ -11,13 +11,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MinuetCloud = void 0;
 const path = require("path");
-const fs = require("fs");
-const yaml = require("js-yaml");
 const minuet_script_engine_1 = require("minuet-script-engine");
 const minuet_server_web_1 = require("minuet-server-web");
 const minuet_server_cloud_1 = require("minuet-server-cloud");
 class MinuetCloud {
-    constructor(option) {
+    constructor() {
         minuet_server_cloud_1.MinuetCloudStatics.mse = new minuet_script_engine_1.Mse({
             rootDir: { "/": minuet_server_cloud_1.MinuetCloudStatics.root + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/renderings" },
             buffering: false,
@@ -34,19 +32,53 @@ class MinuetCloud {
     setRoutes() {
         let routes = require(minuet_server_cloud_1.MinuetCloudStatics.root + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/routes/access").default;
         // get container routing lists
-        if (fs.existsSync(minuet_server_cloud_1.MinuetCloudStatics.containerTmpPath)) {
-            if (fs.statSync(minuet_server_cloud_1.MinuetCloudStatics.containerTmpPath).isFile()) {
-                const getcontainerTmp = fs.readFileSync(minuet_server_cloud_1.MinuetCloudStatics.containerTmpPath).toString();
-                const cyaml = yaml.load(getcontainerTmp);
-                const c = Object.keys(cyaml);
-                for (let n = 0; n < c.length; n++) {
-                    const url = c[n];
-                    const value = cyaml[url];
-                    routes[url] = value;
+        if (minuet_server_cloud_1.MinuetCloudStatics.containersInit) {
+            const c = Object.keys(minuet_server_cloud_1.MinuetCloudStatics.containersInit);
+            for (let n = 0; n < c.length; n++) {
+                const containerName = c[n];
+                const croutes = minuet_server_cloud_1.MinuetCloudStatics.containersInit[containerName];
+                const c2 = Object.keys(croutes);
+                for (let n2 = 0; n2 < c2.length; n2++) {
+                    const url = c2[n2];
+                    const route = croutes[url];
+                    routes[url] = route;
                 }
             }
         }
-        minuet_server_cloud_1.MinuetCloudStatics.routes = this.convertRoutes(routes);
+        routes = this.convertRoutes(routes);
+        // get route converts  lists
+        let routes2 = {};
+        if (minuet_server_cloud_1.MinuetCloudStatics.routeConverts) {
+            const c = Object.keys(routes);
+            for (let n = 0; n < c.length; n++) {
+                const url = c[n];
+                const route = routes[url];
+                const c2 = Object.keys(minuet_server_cloud_1.MinuetCloudStatics.routeConverts);
+                let status = false;
+                for (let n2 = 0; n2 < c2.length; n2++) {
+                    const before = c2[n2];
+                    let after = minuet_server_cloud_1.MinuetCloudStatics.routeConverts[before];
+                    if (after == "/")
+                        after = "";
+                    if ((url + "/").indexOf(before + "/") === 0) {
+                        let url2 = after + url.substring(before.length);
+                        if (url2 == "")
+                            url2 = "/";
+                        routes2[url2] = route;
+                        status = true;
+                        break;
+                    }
+                }
+                if (!status) {
+                    routes2[url] = route;
+                }
+            }
+        }
+        else {
+            routes2 = routes;
+        }
+        minuet_server_cloud_1.MinuetCloudStatics.routes = routes2;
+        // console.log(MinuetCloudStatics.routes);
     }
     convertRoutes(routes, container) {
         let result = {};
@@ -162,6 +194,13 @@ class MinuetCloud {
         return result;
     }
     getRoute(req) {
+        let host = req.headers.host;
+        let protocol = "http://";
+        // @ts-ignore
+        if (req.socket.encrypted) {
+            protocol = "https://";
+        }
+        host = protocol + host;
         let url = req.url.split("?")[0];
         if (url != "/" && url[url.length - 1] == "/") {
             url = url.substring(0, url.length - 1);
@@ -180,6 +219,20 @@ class MinuetCloud {
             let targetUrls = targetUrl.split("/");
             if (targetUrls[0] == "") {
                 targetUrls.shift();
+            }
+            else {
+                if (targetUrls[0].indexOf("http:") == 0 ||
+                    targetUrls[0].indexOf("https:") == 0) {
+                    const targetHost = targetUrls[0] + "//" + targetUrls[2];
+                    if (targetHost != host)
+                        continue;
+                    targetUrls.shift();
+                    targetUrls.shift();
+                    targetUrls.shift();
+                    if (targetUrls.length == 0) {
+                        targetUrls = [""];
+                    }
+                }
             }
             const route = minuet_server_cloud_1.MinuetCloudStatics.routes[targetUrl];
             let argAny = false;
@@ -245,6 +298,12 @@ class MinuetCloud {
                 decisionRoute.url = targetUrl;
             }
         }
+        /*
+        console.log({
+            matrixA,
+            matrixB,
+        })
+            */
         const ma1 = Object.keys(matrixA);
         for (let n = 0; n < ma1.length; n++) {
             let juge = true;

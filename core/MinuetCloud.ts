@@ -8,7 +8,7 @@ import { Controller, ErrorHandle, MinuetCloudStatics, MinuetCloudRoutes, MinuetC
 
 export class MinuetCloud {
 
-    public constructor(option?) {
+    public constructor() {
         MinuetCloudStatics.mse = new Mse({
             rootDir : { "/" : MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/renderings" },
             buffering: false,
@@ -27,21 +27,59 @@ export class MinuetCloud {
         let routes = require(MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/routes/access").default;
 
         // get container routing lists
-        if (fs.existsSync(MinuetCloudStatics.containerTmpPath)) {
-            if (fs.statSync(MinuetCloudStatics.containerTmpPath).isFile()) {
-                const getcontainerTmp = fs.readFileSync(MinuetCloudStatics.containerTmpPath).toString();
-                const cyaml = yaml.load(getcontainerTmp);
+        if (MinuetCloudStatics.containersInit) {
+            const c = Object.keys(MinuetCloudStatics.containersInit);
+            for (let n = 0 ; n < c.length ; n++) {
+                const containerName = c[n];
+                const croutes = MinuetCloudStatics.containersInit[containerName];
 
-                const c = Object.keys(cyaml);
-                for (let n = 0 ; n < c.length ; n++) {
-                    const url = c[n];
-                    const value = cyaml[url];
-                    routes[url] = value;
+                const c2 = Object.keys(croutes);
+                for (let n2 = 0 ; n2 < c2.length ; n2++) {
+                    const url = c2[n2];
+                    const route = croutes[url];
+                    routes[url] = route;
                 }
             }
         }
 
-        MinuetCloudStatics.routes = this.convertRoutes(routes);
+        routes = this.convertRoutes(routes);
+
+        // get route converts  lists
+        let routes2 = {};
+        if (MinuetCloudStatics.routeConverts) {
+            const c = Object.keys(routes);
+            for (let n = 0 ; n < c.length ; n++) {
+                const url = c[n];
+                const route = routes[url];
+
+                const c2 = Object.keys(MinuetCloudStatics.routeConverts);
+                let status : boolean = false;
+                for (let n2 = 0 ; n2 < c2.length ; n2++) {
+                    const before = c2[n2];
+                    let after = MinuetCloudStatics.routeConverts[before];
+                    if (after == "/" ) after = "";
+
+                    if ((url + "/").indexOf(before + "/") === 0 ) {    
+                        let url2 = after + url.substring(before.length);
+                        if (url2 == "") url2 = "/";
+                        routes2[url2] = route;
+                        status = true;
+                        break;
+                    }
+                }
+
+                if (!status){
+                    routes2[url] = route;
+                }
+            }
+        }
+        else {
+            routes2 = routes;
+        }
+
+        MinuetCloudStatics.routes = routes2;
+
+        // console.log(MinuetCloudStatics.routes);
     }
 
     private convertRoutes(routes, container? : string) {
@@ -170,6 +208,14 @@ export class MinuetCloud {
     }
 
     private getRoute(req: IncomingMessage) {
+        let host = req.headers.host;
+        let protocol = "http://";
+        // @ts-ignore
+        if (req.socket.encrypted) {
+            protocol = "https://";
+        }
+        host = protocol + host;
+
         let url = req.url.split("?")[0];
         if (url != "/" && url[url.length - 1] == "/") {
             url = url.substring(0, url.length- 1);
@@ -188,6 +234,21 @@ export class MinuetCloud {
             let targetUrls = targetUrl.split("/");           
             if (targetUrls[0] == "") {
                 targetUrls.shift();
+            }
+            else {
+                if (
+                    targetUrls[0].indexOf("http:") == 0 ||
+                    targetUrls[0].indexOf("https:") == 0
+                ) {
+                    const targetHost = targetUrls[0] + "//" + targetUrls[2];
+                    if (targetHost != host)  continue;
+                    targetUrls.shift();
+                    targetUrls.shift();
+                    targetUrls.shift();
+                    if (targetUrls.length == 0){
+                        targetUrls = [ "" ];
+                    }
+                }
             }
             const route = MinuetCloudStatics.routes[targetUrl];
 
@@ -257,6 +318,12 @@ export class MinuetCloud {
             }
             
         }
+        /*
+        console.log({
+            matrixA,
+            matrixB,
+        })
+            */
         const ma1 = Object.keys(matrixA);
         for (let n = 0 ; n < ma1.length ; n++) {
             let juge = true;
