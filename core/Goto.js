@@ -63,13 +63,20 @@ class Goto {
     }
     /**
      * ***redirect***
-     * @param {MinuetCloudRoute} route
+     * @param {MinuetCloudRoute | string} route
+     * @param {number} statusCode = 302
      * @returns
      */
     redirect(route, statusCode) {
         if (!statusCode)
             statusCode = 302;
-        const url = this.url(route);
+        let url;
+        if (typeof route == "string") {
+            url = route;
+        }
+        else {
+            url = this.url(route);
+        }
         if (!url)
             return;
         this.res.statusCode = statusCode;

@@ -78,7 +78,7 @@ class MinuetCloud {
             routes2 = routes;
         }
         minuet_server_cloud_1.MinuetCloudStatics.routes = routes2;
-        console.log(minuet_server_cloud_1.MinuetCloudStatics.routes);
+        // console.log(MinuetCloudStatics.routes);
     }
     convertRoutes(routes, container) {
         let result = {};
