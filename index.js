@@ -39,7 +39,7 @@ const MinuetCloudStatics_1 = require("minuet-server-cloud/core/MinuetCloudStatic
 Object.defineProperty(exports, "MinuetCloudStatics", { enumerable: true, get: function () { return MinuetCloudStatics_1.MinuetCloudStatics; } });
 const Controller_1 = require("minuet-server-cloud/core/Controller");
 Object.defineProperty(exports, "Controller", { enumerable: true, get: function () { return Controller_1.Controller; } });
-const AdminController_1 = require("minuet-server-cloud/src/controllers/AdminController");
+const AdminController_1 = require("minuet-server-cloud/src/controllers/admin/AdminController");
 Object.defineProperty(exports, "AdminController", { enumerable: true, get: function () { return AdminController_1.AdminController; } });
 const Fook_1 = require("minuet-server-cloud/core/Fook");
 Object.defineProperty(exports, "Fook", { enumerable: true, get: function () { return Fook_1.Fook; } });

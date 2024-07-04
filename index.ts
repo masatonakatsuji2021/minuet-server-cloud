@@ -29,7 +29,7 @@ import { MinuetCloudStatics } from "minuet-server-cloud/core/MinuetCloudStatics"
 import { MinuetCloudRoutes, MinuetCloudRoute } from "minuet-server-cloud/core/MinuetCloudRoute";
 import { MinuetCloudContainers, MinuetCloudContainer } from "minuet-server-cloud/core/MinuetCloudContainer";
 import { Controller } from "minuet-server-cloud/core/Controller";
-import { AdminController } from "minuet-server-cloud/src/controllers/AdminController";
+import { AdminController } from "minuet-server-cloud/src/controllers/admin/AdminController";
 import { Fook  } from "minuet-server-cloud/core/Fook";
 import { Render } from "minuet-server-cloud/core/Render";
 import { Console } from "minuet-server-cloud/core/Console";

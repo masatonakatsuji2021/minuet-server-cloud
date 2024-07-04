@@ -78,7 +78,7 @@ class MinuetCloud {
             routes2 = routes;
         }
         minuet_server_cloud_1.MinuetCloudStatics.routes = routes2;
-        // console.log(MinuetCloudStatics.routes);
+        console.log(minuet_server_cloud_1.MinuetCloudStatics.routes);
     }
     convertRoutes(routes, container) {
         let result = {};
@@ -108,20 +108,24 @@ class MinuetCloud {
                     else if (v_[0] == "type") {
                         buffer.type = v_[1];
                     }
-                    if (buffer.container) {
-                        const buffer2 = this.containerRoutes(buffer.container, buffer.type);
-                        const c2 = Object.keys(buffer2);
-                        for (let n3 = 0; n3 < c2.length; n3++) {
-                            let subUrl = c2[n3];
-                            const route = buffer2[subUrl];
-                            if (subUrl == "/")
-                                subUrl = "";
-                            result[url + subUrl] = route;
+                }
+                if (buffer.container) {
+                    const buffer2 = this.containerRoutes(buffer.container, buffer.type);
+                    const c2 = Object.keys(buffer2);
+                    for (let n3 = 0; n3 < c2.length; n3++) {
+                        let subUrl = c2[n3];
+                        const route = buffer2[subUrl];
+                        if (subUrl == "/")
+                            subUrl = "";
+                        let url2 = url + subUrl;
+                        if (!buffer.type) {
+                            url2 = "/public" + url2;
                         }
+                        result[url2] = route;
                     }
-                    else {
-                        result[url] = buffer;
-                    }
+                }
+                else {
+                    result[url] = buffer;
                 }
             }
             else {
@@ -361,15 +365,16 @@ class MinuetCloud {
                 if (!route)
                     this.notFound(res);
                 // set controller
-                const controllerName = route.controller.substring(0, 1).toUpperCase() + route.controller.substring(1) + "Controller";
+                const controllerName = path.basename(route.controller).substring(0, 1).toUpperCase() + path.basename(route.controller).substring(1) + "Controller";
                 let controllerPath;
                 if (route.container) {
                     const container = minuet_server_cloud_1.MinuetCloudStatics.containers[route.container];
-                    controllerPath = container.root + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/controllers/" + controllerName;
+                    controllerPath = container.root + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/controllers/" + path.dirname(route.controller) + "/" + controllerName;
                 }
                 else {
-                    controllerPath = minuet_server_cloud_1.MinuetCloudStatics.root + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/controllers/" + controllerName;
+                    controllerPath = minuet_server_cloud_1.MinuetCloudStatics.root + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/controllers/" + path.dirname(route.controller) + "/" + controllerName;
                 }
+                controllerPath = controllerPath.split("//").join("/");
                 const controllerClass = require(controllerPath)[controllerName];
                 let controller = new controllerClass(req, res, route);
                 controller.view = route.controller + "/" + route.action;
@@ -473,7 +478,7 @@ class MinuetCloud {
             if (!ehFlg) {
                 res.write(error.stack.toString());
             }
-            console.log(error.stack);
+            // console.log(error.stack);
         });
     }
 }

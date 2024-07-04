@@ -9,14 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AdminController = void 0;
-const Controller_1 = require("minuet-server-cloud/src/controllers/Controller");
-class AdminController extends Controller_1.Controller {
-    constructor() {
-        super(...arguments);
-        this.autoRender = true;
-        this.layout = "type1";
-    }
+exports.MainController = void 0;
+const minuet_server_cloud_1 = require("minuet-server-cloud");
+class MainController extends minuet_server_cloud_1.AdminController {
     index() {
         return __awaiter(this, void 0, void 0, function* () { });
     }
@@ -36,4 +31,4 @@ class AdminController extends Controller_1.Controller {
         });
     }
 }
-exports.AdminController = AdminController;
+exports.MainController = MainController;

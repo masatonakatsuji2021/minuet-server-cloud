@@ -14,6 +14,7 @@ const minuet_server_cloud_1 = require("minuet-server-cloud");
 class ErrorHandle extends minuet_server_cloud_1.ErrorHandle {
     handle(error) {
         return __awaiter(this, void 0, void 0, function* () {
+            this.Render.set("error", error);
             const res = yield this.Render.parentView(this.view);
             this.res.write(res.content);
         });

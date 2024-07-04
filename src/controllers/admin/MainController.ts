@@ -1,9 +1,6 @@
-import { Controller } from "minuet-server-cloud/src/controllers/Controller";
+import { AdminController } from "minuet-server-cloud";
 
-export class AdminController extends Controller {
-
-    public autoRender : boolean = true;
-    public layout : string = "type1";
+export class MainController extends AdminController {
 
     public async index() { }
 
