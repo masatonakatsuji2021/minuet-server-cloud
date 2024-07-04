@@ -1,8 +1,16 @@
-import { AdminController } from "minuet-server-cloud";
+import { AdminController, Goto } from "minuet-server-cloud";
 
 export class MainController extends AdminController {
 
-    public async index() { }
+    public async index() { 
+
+/*
+        console.log(this.Goto.url({ controller: "admin/setting", action: "index" }));
+        console.log(this.Goto.url({ container: "sample_1", controller: "main" }));
+        console.log(this.Goto.url({ controller: "admin/account", action: "edit2" , args: [ 111, 222 ]}));
+        console.log(this.Goto.url({ controller: "admin/account", action: "edit2" , args: [ 333 ]}));
+        */
+    }
 
     public async login() {
         this.Render

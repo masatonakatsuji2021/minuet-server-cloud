@@ -22,6 +22,7 @@ class Controller {
         this.res = res;
         this.route = route;
         this.Render = new minuet_server_cloud_1.Render(route, this);
+        this.Goto = new minuet_server_cloud_1.Goto(res);
     }
     __rendering() {
         return __awaiter(this, void 0, void 0, function* () {

@@ -79,7 +79,7 @@ export class MinuetCloud {
 
         MinuetCloudStatics.routes = routes2;
 
-        console.log(MinuetCloudStatics.routes);
+        // console.log(MinuetCloudStatics.routes);
     }
 
     private convertRoutes(routes, container? : string) {
@@ -522,6 +522,5 @@ export class MinuetCloud {
         }
 
         // console.log(error.stack);
-
     }
 }

@@ -35,7 +35,8 @@ import { Render } from "minuet-server-cloud/core/Render";
 import { Console } from "minuet-server-cloud/core/Console";
 import { WebSocket } from "minuet-server-cloud/core/WebSocket";
 import { ErrorHandle } from "minuet-server-cloud/core/ErrorHandle";
- 
+import { Goto } from "minuet-server-cloud/core/Goto";
+
 export {
     MinuetCloudStatics,
     MinuetCloudRoutes,
@@ -49,6 +50,7 @@ export {
     Console,
     WebSocket,
     ErrorHandle,
+    Goto,
 };
 
 export class MinuetServerModuleCloud extends MinuetServerModuleBase {

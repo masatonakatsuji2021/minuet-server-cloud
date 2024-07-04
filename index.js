@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MinuetServerModuleCloud = exports.ErrorHandle = exports.WebSocket = exports.Console = exports.Render = exports.Fook = exports.AdminController = exports.Controller = exports.MinuetCloudStatics = void 0;
+exports.MinuetServerModuleCloud = exports.Goto = exports.ErrorHandle = exports.WebSocket = exports.Console = exports.Render = exports.Fook = exports.AdminController = exports.Controller = exports.MinuetCloudStatics = void 0;
 const minuet_server_1 = require("minuet-server");
 const MinuetCloud_1 = require("minuet-server-cloud/core/MinuetCloud");
 const MinuetCloudStatics_1 = require("minuet-server-cloud/core/MinuetCloudStatics");
@@ -51,6 +51,8 @@ const WebSocket_1 = require("minuet-server-cloud/core/WebSocket");
 Object.defineProperty(exports, "WebSocket", { enumerable: true, get: function () { return WebSocket_1.WebSocket; } });
 const ErrorHandle_1 = require("minuet-server-cloud/core/ErrorHandle");
 Object.defineProperty(exports, "ErrorHandle", { enumerable: true, get: function () { return ErrorHandle_1.ErrorHandle; } });
+const Goto_1 = require("minuet-server-cloud/core/Goto");
+Object.defineProperty(exports, "Goto", { enumerable: true, get: function () { return Goto_1.Goto; } });
 class MinuetServerModuleCloud extends minuet_server_1.MinuetServerModuleBase {
     onBegin() {
         MinuetCloudStatics_1.MinuetCloudStatics.root = __dirname;

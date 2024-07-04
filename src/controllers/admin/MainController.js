@@ -13,7 +13,14 @@ exports.MainController = void 0;
 const minuet_server_cloud_1 = require("minuet-server-cloud");
 class MainController extends minuet_server_cloud_1.AdminController {
     index() {
-        return __awaiter(this, void 0, void 0, function* () { });
+        return __awaiter(this, void 0, void 0, function* () {
+            /*
+                    console.log(this.Goto.url({ controller: "admin/setting", action: "index" }));
+                    console.log(this.Goto.url({ container: "sample_1", controller: "main" }));
+                    console.log(this.Goto.url({ controller: "admin/account", action: "edit2" , args: [ 111, 222 ]}));
+                    console.log(this.Goto.url({ controller: "admin/account", action: "edit2" , args: [ 333 ]}));
+                    */
+        });
     }
     login() {
         return __awaiter(this, void 0, void 0, function* () {

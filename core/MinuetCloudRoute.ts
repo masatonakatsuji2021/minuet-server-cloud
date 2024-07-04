@@ -7,6 +7,6 @@ export interface MinuetCloudRoute {
     container? : string,
     controller? : string,
     action? : string,
-    args? : Array<string>,
+    args? : Array<string|number>,
     type? : string,
 }

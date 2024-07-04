@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { IMseLoadResult } from "minuet-script-engine";
-import { Render, MinuetCloudRoute } from "minuet-server-cloud";
+import { Render, MinuetCloudRoute, Goto } from "minuet-server-cloud";
 
 export class Controller {
 
@@ -12,6 +12,7 @@ export class Controller {
     public view : string = null;
     public autoRender: boolean = false;
     public Render : Render
+    public Goto : Goto;
     public route : MinuetCloudRoute;
 
     public constructor(req : IncomingMessage, res : ServerResponse, route : MinuetCloudRoute){
@@ -19,6 +20,7 @@ export class Controller {
         this.res = res;
         this.route = route;
         this.Render = new Render(route, this);
+        this.Goto = new Goto(res);
     }
 
     public filterBefore?(any?) : Promise<string|void>;
