@@ -1,14 +1,23 @@
 import * as path from "path";
-import * as fs from "fs";
-import * as yaml from "js-yaml";
 import { IncomingMessage, ServerResponse } from "http";
 import { Mse } from "minuet-script-engine";
 import { MinuetWeb } from "minuet-server-web";
-import { Controller, ErrorHandle, MinuetCloudStatics, MinuetCloudRoutes, MinuetCloudRoute } from "minuet-server-cloud";
+import { MinuetAuthoricate, MinuetAuthoricateOptions } from "minuet-server-authoricate";
+import { Controller, ErrorHandle, MinuetCloudStatics, MinuetCloudContainerRoute, MinuetCloudRoutes, MinuetCloudRoute } from "minuet-server-cloud";
+
+export interface MinuetCloudInit {
+    tempDir?: string,
+    containers?: {[containerName: string] : MinuetCloudContainerRoute },
+    routeConverts?:  {[url: string] : string},
+    authoricates?: MinuetAuthoricateOptions,
+}
 
 export class MinuetCloud {
 
-    public constructor() {
+    public constructor(option? : MinuetCloudInit) {
+        MinuetCloudStatics.tempDir = MinuetCloudStatics.localDir + "/" + option.tempDir;
+        MinuetCloudStatics.containersInit = option.containers;
+        MinuetCloudStatics.routeConverts = option.routeConverts;
         MinuetCloudStatics.mse = new Mse({
             rootDir : { "/" : MinuetCloudStatics.root + "/" + MinuetCloudStatics.src + "/renderings" },
             buffering: false,
@@ -20,6 +29,9 @@ export class MinuetCloud {
                 "cache-control": "max-age=3600",
             }
         });
+        if (option.authoricates) {
+            MinuetCloudStatics.authoricate = new MinuetAuthoricate(option.authoricates);
+        }
         this.setRoutes();
     }
 
@@ -377,8 +389,15 @@ export class MinuetCloud {
      */
     public async listen(req: IncomingMessage, res: ServerResponse<IncomingMessage>) : Promise<boolean> {
 
+        // public web content check
         const status = await MinuetCloudStatics.web.listen(req, res);
         if (status) return true;
+
+        if (MinuetCloudStatics.authoricate) {
+            // Basic authoricate check
+            const status = await MinuetCloudStatics.authoricate.listen(req, res);
+            if (status) return true;
+        }
 
         let route;
         try{

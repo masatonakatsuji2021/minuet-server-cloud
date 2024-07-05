@@ -25,7 +25,7 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { MinuetServerModuleBase } from "minuet-server";
 import { MinuetCloud } from "minuet-server-cloud/core/MinuetCloud";
-import { MinuetCloudStatics } from "minuet-server-cloud/core/MinuetCloudStatics";
+import { MinuetCloudStatics, MinuetCloudContainerRoute } from "minuet-server-cloud/core/MinuetCloudStatics";
 import { MinuetCloudRoutes, MinuetCloudRoute } from "minuet-server-cloud/core/MinuetCloudRoute";
 import { MinuetCloudContainers, MinuetCloudContainer } from "minuet-server-cloud/core/MinuetCloudContainer";
 import { Controller } from "minuet-server-cloud/core/Controller";
@@ -39,6 +39,7 @@ import { Goto } from "minuet-server-cloud/core/Goto";
 
 export {
     MinuetCloudStatics,
+    MinuetCloudContainerRoute,
     MinuetCloudRoutes,
     MinuetCloudRoute,
     MinuetCloudContainers, 
@@ -61,11 +62,7 @@ export class MinuetServerModuleCloud extends MinuetServerModuleBase {
         MinuetCloudStatics.root = __dirname;
         MinuetCloudStatics.src = "src";
         MinuetCloudStatics.localDir = this.sector.root;
-        MinuetCloudStatics.tempDir = MinuetCloudStatics.localDir + "/" + this.init.tempDir;
-        MinuetCloudStatics.containersInit = this.init.containers;
-        MinuetCloudStatics.routeConverts = this.init.routeConverts;
-//        MinuetCloudStatics.containerTmpPath = MinuetCloudStatics.localDir + "/.container";
-        this.cloud = new MinuetCloud();
+        this.cloud = new MinuetCloud(this.init);
     }
 
     public async onListen(req: IncomingMessage, res: ServerResponse<IncomingMessage>): Promise<boolean> {

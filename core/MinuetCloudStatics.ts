@@ -1,6 +1,7 @@
 import { Mse } from "minuet-script-engine";
 import { MinuetWeb } from "minuet-server-web";
 import { MinuetCloudRoutes, MinuetCloudContainers } from "minuet-server-cloud";
+import { MinuetAuthoricate, MinuetAuthoricateOptions } from "minuet-server-authoricate";
 
 export class MinuetCloudStatics {
     public static root : string;
@@ -13,8 +14,9 @@ export class MinuetCloudStatics {
     public static containers: MinuetCloudContainers = {};
     public static mse : Mse;
     public static web : MinuetWeb;
+    public static authoricate : MinuetAuthoricate;
 }
 
-interface MinuetCloudContainerRoute {
+export interface MinuetCloudContainerRoute {
     [url: string] : string,
 }

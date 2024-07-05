@@ -13,9 +13,13 @@ exports.MinuetCloud = void 0;
 const path = require("path");
 const minuet_script_engine_1 = require("minuet-script-engine");
 const minuet_server_web_1 = require("minuet-server-web");
+const minuet_server_authoricate_1 = require("minuet-server-authoricate");
 const minuet_server_cloud_1 = require("minuet-server-cloud");
 class MinuetCloud {
-    constructor() {
+    constructor(option) {
+        minuet_server_cloud_1.MinuetCloudStatics.tempDir = minuet_server_cloud_1.MinuetCloudStatics.localDir + "/" + option.tempDir;
+        minuet_server_cloud_1.MinuetCloudStatics.containersInit = option.containers;
+        minuet_server_cloud_1.MinuetCloudStatics.routeConverts = option.routeConverts;
         minuet_server_cloud_1.MinuetCloudStatics.mse = new minuet_script_engine_1.Mse({
             rootDir: { "/": minuet_server_cloud_1.MinuetCloudStatics.root + "/" + minuet_server_cloud_1.MinuetCloudStatics.src + "/renderings" },
             buffering: false,
@@ -27,6 +31,9 @@ class MinuetCloud {
                 "cache-control": "max-age=3600",
             }
         });
+        if (option.authoricates) {
+            minuet_server_cloud_1.MinuetCloudStatics.authoricate = new minuet_server_authoricate_1.MinuetAuthoricate(option.authoricates);
+        }
         this.setRoutes();
     }
     setRoutes() {
@@ -355,9 +362,16 @@ class MinuetCloud {
      */
     listen(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            // public web content check
             const status = yield minuet_server_cloud_1.MinuetCloudStatics.web.listen(req, res);
             if (status)
                 return true;
+            if (minuet_server_cloud_1.MinuetCloudStatics.authoricate) {
+                // Basic authoricate check
+                const status = yield minuet_server_cloud_1.MinuetCloudStatics.authoricate.listen(req, res);
+                if (status)
+                    return true;
+            }
             let route;
             try {
                 res.setHeader("content-type", "text/html");

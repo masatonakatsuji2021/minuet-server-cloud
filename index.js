@@ -58,11 +58,7 @@ class MinuetServerModuleCloud extends minuet_server_1.MinuetServerModuleBase {
         MinuetCloudStatics_1.MinuetCloudStatics.root = __dirname;
         MinuetCloudStatics_1.MinuetCloudStatics.src = "src";
         MinuetCloudStatics_1.MinuetCloudStatics.localDir = this.sector.root;
-        MinuetCloudStatics_1.MinuetCloudStatics.tempDir = MinuetCloudStatics_1.MinuetCloudStatics.localDir + "/" + this.init.tempDir;
-        MinuetCloudStatics_1.MinuetCloudStatics.containersInit = this.init.containers;
-        MinuetCloudStatics_1.MinuetCloudStatics.routeConverts = this.init.routeConverts;
-        //        MinuetCloudStatics.containerTmpPath = MinuetCloudStatics.localDir + "/.container";
-        this.cloud = new MinuetCloud_1.MinuetCloud();
+        this.cloud = new MinuetCloud_1.MinuetCloud(this.init);
     }
     onListen(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
